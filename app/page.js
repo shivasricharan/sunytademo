@@ -485,7 +485,9 @@ export default function HomePage() {
                     {result.recommendedProgram}
                   </div>
                 </div>
-
+                <div style={{ marginTop: "10px", color: "var(--muted)", fontSize: "14px" }}>
+  This learner is ready for: <strong>{result.priorityAction}</strong>
+</div>
                 <div
                   style={{
                     display: "grid",
