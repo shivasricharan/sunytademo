@@ -543,7 +543,7 @@ export default function HomePage() {
                   style={{ marginTop: "20px", width: "100%" }}
                   onClick={() => setResult(null)}
                 >
-                  Try another submission
+                  Start Over
                 </button>
               </div>
             )}
