@@ -452,7 +452,7 @@ export default function HomePage() {
                   ) : null}
 
                   <button type="submit" className="button-primary" disabled={submitting}>
-                    {submitting ? "Submitting..." : "Submit & classify intent"}
+                    {submitting ? "Submitting..." : "See My Path"}
                   </button>
                 </form>
               </>
