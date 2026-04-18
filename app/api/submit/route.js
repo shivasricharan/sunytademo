@@ -1,7 +1,6 @@
 export async function POST(req) {
   try {
     const body = await req.json();
-
     const scriptUrl = process.env.GOOGLE_SCRIPT_URL;
 
     if (!scriptUrl) {
@@ -25,11 +24,12 @@ export async function POST(req) {
     try {
       data = JSON.parse(text);
     } catch {
-      data = { success: true, raw: text };
+      data = { raw: text };
     }
 
     return Response.json({
-      success: true,
+      success: response.ok,
+      scriptUrl,
       googleScriptResponse: data,
     });
   } catch (error) {
