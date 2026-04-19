@@ -11,9 +11,8 @@ export default function Footer() {
           lineHeight: 1.6,
         }}
       >
-        A simple premium demo showing how structured learner intent can help
-        education-led businesses like Sunyta route people better, recommend the
-        right pathway, and prioritize the right follow-up.
+        A guided experience designed to help you understand where you are,
+        discover what may suit you best, and move ahead with more confidence.
       </div>
     </footer>
   );

@@ -18,31 +18,31 @@ const initialForm = {
 
 function getScore(form) {
   const stageMap = {
-    "Just starting": 1,
-    "Some knowledge, not confident": 2,
-    "Already learning and comparing options": 3,
-    "Ready to act / enroll soon": 4,
+    "I am just getting started": 1,
+    "I know a little, but I need more clarity": 2,
+    "I have been exploring and comparing options": 3,
+    "I am ready to take the next serious step": 4,
   };
 
   const timelineMap = {
-    "Just exploring": 1,
-    "Within 3-6 months": 2,
-    "Within 1-2 months": 3,
-    "Immediately": 4,
+    "I am only exploring for now": 1,
+    "Maybe in the next 3 to 6 months": 2,
+    "Likely in the next 1 to 2 months": 3,
+    "I want to move ahead soon": 4,
   };
 
   const learningMap = {
-    "Need basic understanding first": 1,
-    "Want structured guidance": 2,
-    "Want certification and career path": 3,
-    "Want direct counselling / decision support": 4,
+    "I want to understand the basics first": 1,
+    "I want a clear and structured path": 2,
+    "I want a certification or career-focused path": 3,
+    "I want to speak to someone and decide properly": 4,
   };
 
   const nextStepMap = {
-    "Send me beginner guidance": 1,
-    "Recommend the right program": 2,
-    "Invite me to a session / webinar": 3,
-    "Talk to me now": 4,
+    "Share something simple to help me begin": 1,
+    "Help me choose the right path": 2,
+    "Invite me to a session or workshop": 3,
+    "I would like to talk to someone soon": 4,
   };
 
   const stageScore = stageMap[form.stage] || 0;
@@ -52,15 +52,18 @@ function getScore(form) {
 
   const total = stageScore + timelineScore + learningScore + nextStepScore;
 
-  let intentLevel = "Low";
-  let priorityAction = "Share basic educational content";
+  let intentLevel = "Just getting started";
+  let priorityAction =
+    "Start with a simple, beginner-friendly introduction to financial planning";
 
   if (total >= 13) {
-    intentLevel = "High";
-    priorityAction = "Route to counselling / enrollment conversation";
+    intentLevel = "Ready for the next step";
+    priorityAction =
+      "Have a conversation to choose the right path and take the next step with confidence";
   } else if (total >= 9) {
-    intentLevel = "Medium";
-    priorityAction = "Recommend specific program with guided follow-up";
+    intentLevel = "Gaining clarity";
+    priorityAction =
+      "Explore a structured pathway that helps you move forward with more clarity and direction";
   }
 
   return {
@@ -77,27 +80,27 @@ function getScore(form) {
 function getRecommendedProgram(form, score) {
   const { role, intent, learningMode, programInterest, nextStep } = form;
 
-  if (programInterest && programInterest !== "Not sure yet") {
+  if (programInterest && programInterest !== "I am not sure yet") {
     return programInterest;
   }
 
   if (
-    intent === "Choose the right certification" ||
-    learningMode === "Want certification and career path"
+    intent === "I want help choosing the right certification" ||
+    learningMode === "I want a certification or career-focused path"
   ) {
     return "CFP Fast Track";
   }
 
   if (
-    intent === "Explore financial planning" ||
-    learningMode === "Want structured guidance" ||
-    nextStep === "Invite me to a session / webinar"
+    intent === "I want to understand financial planning better" ||
+    learningMode === "I want a clear and structured path" ||
+    nextStep === "Invite me to a session or workshop"
   ) {
     return "21-Day Comprehensive Financial Planning";
   }
 
   if (
-    intent === "Build a career in finance" &&
+    intent === "I want to build a career in finance" &&
     (role === "Student" || role === "Working professional")
   ) {
     return "CFP Fast Track";
@@ -105,30 +108,100 @@ function getRecommendedProgram(form, score) {
 
   if (
     role === "Existing advisor / wealth manager" ||
-    intent === "Upgrade professional knowledge"
+    intent === "I want to deepen my professional knowledge"
   ) {
     return "Wealth Coach Journey";
   }
 
   if (
-    intent === "Need guidance but not sure where to start" &&
-    score.intentLevel === "Low"
+    intent === "I need guidance, but I do not know where to begin" &&
+    score.intentLevel === "Just getting started"
   ) {
     return "21-Day Comprehensive Financial Planning";
   }
 
   if (
     role === "Aspiring advisor / planner" &&
-    learningMode === "Want certification and career path"
+    learningMode === "I want a certification or career-focused path"
   ) {
     return "NISM Certification Program";
   }
 
-  if (score.intentLevel === "High" && nextStep === "Talk to me now") {
+  if (
+    score.intentLevel === "Ready for the next step" &&
+    nextStep === "I would like to talk to someone soon"
+  ) {
     return "Wealth Coach Journey";
   }
 
   return "21-Day Comprehensive Financial Planning";
+}
+
+function getInterpretationCards(form, result) {
+  const stageTextMap = {
+    "I am just getting started":
+      "You seem to be at the beginning of your journey, so a simple and reassuring starting point may help most.",
+    "I know a little, but I need more clarity":
+      "You already have some exposure, but a clearer path could help you move forward with more confidence.",
+    "I have been exploring and comparing options":
+      "You are actively considering your options, which means this may be a good time to narrow your direction.",
+    "I am ready to take the next serious step":
+      "You seem close to making a decision and may benefit from more direct guidance now.",
+  };
+
+  const timelineTextMap = {
+    "I am only exploring for now":
+      "You are not in a hurry right now, which gives you space to explore with clarity.",
+    "Maybe in the next 3 to 6 months":
+      "You are thinking ahead, which is a good stage to choose a path carefully.",
+    "Likely in the next 1 to 2 months":
+      "You may be approaching decision time, so this is a useful moment to get direction.",
+    "I want to move ahead soon":
+      "You seem ready to move quickly, so timely guidance could be especially valuable.",
+  };
+
+  const learningTextMap = {
+    "I want to understand the basics first":
+      "A beginner-friendly and confidence-building approach may be the most useful starting point for you.",
+    "I want a clear and structured path":
+      "You seem to value clarity and progression, so a guided path may suit you well.",
+    "I want a certification or career-focused path":
+      "You appear to be looking for a more goal-oriented journey with a stronger professional outcome.",
+    "I want to speak to someone and decide properly":
+      "A direct conversation may help you make a more confident decision than exploring alone.",
+  };
+
+  const nextStepTextMap = {
+    "Share something simple to help me begin":
+      "You are looking for a light and comfortable next step before committing further.",
+    "Help me choose the right path":
+      "You want support in narrowing the options and choosing what fits you best.",
+    "Invite me to a session or workshop":
+      "You seem open to guided learning before making a bigger decision.",
+    "I would like to talk to someone soon":
+      "You may be ready for a direct conversation rather than more self-exploration.",
+  };
+
+  return [
+    {
+      title: "Where you are right now",
+      text: stageTextMap[form.stage] || "Your current stage is becoming clearer.",
+    },
+    {
+      title: "Your timeline",
+      text: timelineTextMap[form.timeline] || "Your timeline helps shape the right next step.",
+    },
+    {
+      title: "What may help most",
+      text:
+        learningTextMap[form.learningMode] ||
+        "Your support preference helps guide the right path.",
+    },
+    {
+      title: "What you seem ready for",
+      text: nextStepTextMap[form.nextStep] || result.priorityAction,
+    },
+  ];
 }
 
 export default function HomePage() {
@@ -147,6 +220,7 @@ export default function HomePage() {
 
     const score = getScore(form);
     const recommendedProgram = getRecommendedProgram(form, score);
+    const interpretationCards = getInterpretationCards(form, score);
 
     try {
       setSubmitting(true);
@@ -156,7 +230,7 @@ export default function HomePage() {
         ...score,
         recommendedProgram,
         formType: "sunyta_demo",
-        demoType: "Financial Education Intent",
+        demoType: "Financial Education Journey",
         submittedAt: new Date().toISOString(),
         source: "sunyta.netlify.app",
       };
@@ -178,6 +252,7 @@ export default function HomePage() {
       setResult({
         ...score,
         recommendedProgram,
+        interpretationCards,
       });
       setForm(initialForm);
     } catch (err) {
@@ -202,23 +277,10 @@ export default function HomePage() {
           >
             <div
               style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "12px",
-                flexWrap: "wrap",
-                marginBottom: "8px",
-              }}
-            >
-              <div className="hero-badge">Structured learner intent • Premium demo</div>
-            </div>
-
-            <div
-              style={{
                 position: "relative",
-                width: "140px",
-                height: "44px",
-                marginTop: "6px",
-                marginBottom: "10px",
+                width: "150px",
+                height: "48px",
+                marginBottom: "16px",
               }}
             >
               <img
@@ -232,6 +294,8 @@ export default function HomePage() {
               />
             </div>
 
+            <div className="hero-badge">A simple guided experience</div>
+
             <h1
               style={{
                 fontSize: "clamp(34px, 6vw, 58px)",
@@ -239,10 +303,10 @@ export default function HomePage() {
                 fontWeight: 800,
                 marginTop: "18px",
                 marginBottom: "18px",
+                maxWidth: "760px",
               }}
             >
-              See how <span className="gradient-text">Vouch</span> can help Sunyta
-              understand where a learner stands before the conversation begins.
+              Find the learning path that feels right for where you are today.
             </h1>
 
             <p
@@ -250,39 +314,57 @@ export default function HomePage() {
                 color: "var(--muted)",
                 fontSize: "17px",
                 lineHeight: 1.7,
-                maxWidth: "680px",
+                maxWidth: "700px",
               }}
             >
-              This demo shows how incoming learner interest can be turned into
-              structured intent signals across financial planning education journeys
-              — from early exploration to certification readiness to counselling
-              support.
+              Whether you are just beginning, exploring certifications, or looking for
+              the right next step in your financial learning journey, this short guided
+              experience is designed to help you move ahead with more clarity.
             </p>
 
             <div
               style={{
                 display: "grid",
-                gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
+                gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
                 gap: "14px",
-                marginTop: "26px",
+                marginTop: "28px",
               }}
             >
               {[
-                "CFP Fast Track",
-                "21-Day Financial Planning",
-                "NISM Programs",
-                "Wealth Coach Pathway",
+                {
+                  title: "Understand where you are",
+                  text: "Get a clearer sense of your current stage before making a decision.",
+                },
+                {
+                  title: "See what fits best",
+                  text: "Discover which path may be most relevant to your goals right now.",
+                },
+                {
+                  title: "Move ahead with confidence",
+                  text: "Know what kind of next step may help you move forward more comfortably.",
+                },
+                {
+                  title: "Avoid unnecessary confusion",
+                  text: "Bring more direction to your choices before committing time and effort.",
+                },
               ].map((item) => (
                 <div
-                  key={item}
+                  key={item.title}
                   className="glass metric-card"
                   style={{ borderRadius: "22px" }}
                 >
-                  <div style={{ fontSize: "14px", color: "var(--muted)" }}>
-                    Program fit
+                  <div style={{ fontSize: "17px", fontWeight: 700 }}>
+                    {item.title}
                   </div>
-                  <div style={{ fontSize: "17px", fontWeight: 700, marginTop: "6px" }}>
-                    {item}
+                  <div
+                    style={{
+                      fontSize: "14px",
+                      color: "var(--muted)",
+                      marginTop: "8px",
+                      lineHeight: 1.6,
+                    }}
+                  >
+                    {item.text}
                   </div>
                 </div>
               ))}
@@ -300,20 +382,21 @@ export default function HomePage() {
               <>
                 <div style={{ marginBottom: "18px" }}>
                   <h2 style={{ fontSize: "26px", fontWeight: 700, marginBottom: "8px" }}>
-                    Know where you stand
+                    Take a moment to reflect on where you are
                   </h2>
                   <p style={{ color: "var(--muted)", fontSize: "15px", lineHeight: 1.6 }}>
-                    A simple flow that turns vague interest into structured signals.
+                    Your answers will help surface a path that may feel more relevant to your
+                    current stage, goals, and level of readiness.
                   </p>
                 </div>
 
                 <form onSubmit={handleSubmit} style={{ display: "grid", gap: "16px" }}>
                   <div>
-                    <label className="label">Full name</label>
+                    <label className="label">Your name</label>
                     <input
                       className="input"
                       type="text"
-                      placeholder="Enter your name"
+                      placeholder="Type your name"
                       value={form.fullName}
                       onChange={(e) => updateField("fullName", e.target.value)}
                       required
@@ -321,11 +404,11 @@ export default function HomePage() {
                   </div>
 
                   <div>
-                    <label className="label">WhatsApp number</label>
+                    <label className="label">Your WhatsApp number</label>
                     <input
                       className="input"
                       type="text"
-                      placeholder="Enter WhatsApp number"
+                      placeholder="Type your WhatsApp number"
                       value={form.whatsapp}
                       onChange={(e) => updateField("whatsapp", e.target.value)}
                       required
@@ -333,14 +416,16 @@ export default function HomePage() {
                   </div>
 
                   <div>
-                    <label className="label">Who are you?</label>
+                    <label className="label">
+                      Which of these feels closest to where you are today?
+                    </label>
                     <select
                       className="select"
                       value={form.role}
                       onChange={(e) => updateField("role", e.target.value)}
                       required
                     >
-                      <option value="">Select</option>
+                      <option value="">Choose the option that feels closest to you</option>
                       <option>Student</option>
                       <option>Working professional</option>
                       <option>Aspiring advisor / planner</option>
@@ -350,100 +435,112 @@ export default function HomePage() {
                   </div>
 
                   <div>
-                    <label className="label">Why are you here today?</label>
+                    <label className="label">What would you like help with right now?</label>
                     <select
                       className="select"
                       value={form.intent}
                       onChange={(e) => updateField("intent", e.target.value)}
                       required
                     >
-                      <option value="">Select</option>
-                      <option>Explore financial planning</option>
-                      <option>Build a career in finance</option>
-                      <option>Upgrade professional knowledge</option>
-                      <option>Choose the right certification</option>
-                      <option>Need guidance but not sure where to start</option>
+                      <option value="">Choose what you would like help with</option>
+                      <option>I want to understand financial planning better</option>
+                      <option>I want to build a career in finance</option>
+                      <option>I want to deepen my professional knowledge</option>
+                      <option>I want help choosing the right certification</option>
+                      <option>I need guidance, but I do not know where to begin</option>
                     </select>
                   </div>
 
                   <div>
-                    <label className="label">Where do you see yourself right now?</label>
+                    <label className="label">
+                      How would you describe where you are right now?
+                    </label>
                     <select
                       className="select"
                       value={form.stage}
                       onChange={(e) => updateField("stage", e.target.value)}
                       required
                     >
-                      <option value="">Select</option>
-                      <option>Just starting</option>
-                      <option>Some knowledge, not confident</option>
-                      <option>Already learning and comparing options</option>
-                      <option>Ready to act / enroll soon</option>
+                      <option value="">Choose the stage that feels most like you</option>
+                      <option>I am just getting started</option>
+                      <option>I know a little, but I need more clarity</option>
+                      <option>I have been exploring and comparing options</option>
+                      <option>I am ready to take the next serious step</option>
                     </select>
                   </div>
 
                   <div>
-                    <label className="label">When do you want to take action?</label>
+                    <label className="label">
+                      When do you feel you may want to take the next step?
+                    </label>
                     <select
                       className="select"
                       value={form.timeline}
                       onChange={(e) => updateField("timeline", e.target.value)}
                       required
                     >
-                      <option value="">Select</option>
-                      <option>Just exploring</option>
-                      <option>Within 3-6 months</option>
-                      <option>Within 1-2 months</option>
-                      <option>Immediately</option>
+                      <option value="">Choose the timeline that feels right</option>
+                      <option>I am only exploring for now</option>
+                      <option>Maybe in the next 3 to 6 months</option>
+                      <option>Likely in the next 1 to 2 months</option>
+                      <option>I want to move ahead soon</option>
                     </select>
                   </div>
 
                   <div>
-                    <label className="label">What kind of help do you want most?</label>
+                    <label className="label">
+                      What kind of support would feel most helpful right now?
+                    </label>
                     <select
                       className="select"
                       value={form.learningMode}
                       onChange={(e) => updateField("learningMode", e.target.value)}
                       required
                     >
-                      <option value="">Select</option>
-                      <option>Need basic understanding first</option>
-                      <option>Want structured guidance</option>
-                      <option>Want certification and career path</option>
-                      <option>Want direct counselling / decision support</option>
+                      <option value="">
+                        Choose the kind of support you would value most
+                      </option>
+                      <option>I want to understand the basics first</option>
+                      <option>I want a clear and structured path</option>
+                      <option>I want a certification or career-focused path</option>
+                      <option>I want to speak to someone and decide properly</option>
                     </select>
                   </div>
 
                   <div>
-                    <label className="label">Which Sunyta pathway feels closest?</label>
+                    <label className="label">
+                      Which path feels most relevant to what you are looking for?
+                    </label>
                     <select
                       className="select"
                       value={form.programInterest}
                       onChange={(e) => updateField("programInterest", e.target.value)}
                       required
                     >
-                      <option value="">Select</option>
+                      <option value="">Choose the path that feels most relevant</option>
                       <option>CFP Fast Track</option>
                       <option>21-Day Comprehensive Financial Planning</option>
                       <option>NISM Certification Program</option>
                       <option>Wealth Coach Journey</option>
-                      <option>Not sure yet</option>
+                      <option>I am not sure yet</option>
                     </select>
                   </div>
 
                   <div>
-                    <label className="label">What should happen next?</label>
+                    <label className="label">
+                      What would feel like the right next step for you?
+                    </label>
                     <select
                       className="select"
                       value={form.nextStep}
                       onChange={(e) => updateField("nextStep", e.target.value)}
                       required
                     >
-                      <option value="">Select</option>
-                      <option>Send me beginner guidance</option>
-                      <option>Recommend the right program</option>
-                      <option>Invite me to a session / webinar</option>
-                      <option>Talk to me now</option>
+                      <option value="">Choose what would feel best from here</option>
+                      <option>Share something simple to help me begin</option>
+                      <option>Help me choose the right path</option>
+                      <option>Invite me to a session or workshop</option>
+                      <option>I would like to talk to someone soon</option>
                     </select>
                   </div>
 
@@ -458,16 +555,15 @@ export default function HomePage() {
               </>
             ) : (
               <div>
-                <div className="hero-badge">Result</div>
+                <div className="hero-badge">A reflection of where you are today</div>
 
                 <h2 style={{ fontSize: "28px", fontWeight: 800, marginTop: "18px" }}>
-                  Learner classified as{" "}
-                  <span className="gradient-text">{result.intentLevel}</span> intent
+                  Here is a clearer view of what may help you next
                 </h2>
 
                 <p style={{ color: "var(--muted)", lineHeight: 1.7, marginTop: "10px" }}>
-                  This is how Vouch turns an incoming learner into a structured,
-                  usable signal for follow-up, counselling, and program recommendation.
+                  Based on what you shared, this is the stage you may be in right now and the
+                  kind of next step that could support you with more confidence and clarity.
                 </p>
 
                 <div
@@ -479,41 +575,10 @@ export default function HomePage() {
                   }}
                 >
                   <div style={{ color: "var(--muted)", fontSize: "14px" }}>
-                    Best-fit Sunyta pathway
+                    Where you seem to be right now
                   </div>
                   <div style={{ fontSize: "24px", fontWeight: 800, marginTop: "6px" }}>
-                    {result.recommendedProgram}
-                  </div>
-                </div>
-                <div style={{ marginTop: "10px", color: "var(--muted)", fontSize: "14px" }}>
-  This learner is ready for: <strong>{result.priorityAction}</strong>
-</div>
-                <div
-                  style={{
-                    display: "grid",
-                    gridTemplateColumns: "repeat(2, 1fr)",
-                    gap: "14px",
-                    marginTop: "24px",
-                  }}
-                >
-                  <div className="glass metric-card" style={{ borderRadius: "20px" }}>
-                    <div style={{ color: "var(--muted)", fontSize: "13px" }}>Stage score</div>
-                    <div style={{ fontSize: "28px", fontWeight: 800 }}>{result.stageScore}</div>
-                  </div>
-
-                  <div className="glass metric-card" style={{ borderRadius: "20px" }}>
-                    <div style={{ color: "var(--muted)", fontSize: "13px" }}>Timeline score</div>
-                    <div style={{ fontSize: "28px", fontWeight: 800 }}>{result.timelineScore}</div>
-                  </div>
-
-                  <div className="glass metric-card" style={{ borderRadius: "20px" }}>
-                    <div style={{ color: "var(--muted)", fontSize: "13px" }}>Learning score</div>
-                    <div style={{ fontSize: "28px", fontWeight: 800 }}>{result.learningScore}</div>
-                  </div>
-
-                  <div className="glass metric-card" style={{ borderRadius: "20px" }}>
-                    <div style={{ color: "var(--muted)", fontSize: "13px" }}>Next-step score</div>
-                    <div style={{ fontSize: "28px", fontWeight: 800 }}>{result.nextStepScore}</div>
+                    {result.intentLevel}
                   </div>
                 </div>
 
@@ -525,17 +590,48 @@ export default function HomePage() {
                     marginTop: "18px",
                   }}
                 >
-                  <div style={{ color: "var(--muted)", fontSize: "14px" }}>Intent score</div>
-                  <div style={{ fontSize: "36px", fontWeight: 900, marginTop: "6px" }}>
-                    {result.total}/16
+                  <div style={{ color: "var(--muted)", fontSize: "14px" }}>
+                    A path that may suit you best
                   </div>
+                  <div style={{ fontSize: "24px", fontWeight: 800, marginTop: "6px" }}>
+                    {result.recommendedProgram}
+                  </div>
+                </div>
 
-                  <div style={{ color: "var(--muted)", fontSize: "14px", marginTop: "16px" }}>
-                    Recommended action
-                  </div>
-                  <div style={{ fontSize: "18px", fontWeight: 700, marginTop: "6px" }}>
-                    {result.priorityAction}
-                  </div>
+                <div style={{ marginTop: "10px", color: "var(--muted)", fontSize: "14px" }}>
+                  What could support you best from here:{" "}
+                  <strong>{result.priorityAction}</strong>
+                </div>
+
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "repeat(2, 1fr)",
+                    gap: "14px",
+                    marginTop: "24px",
+                  }}
+                >
+                  {result.interpretationCards.map((card) => (
+                    <div
+                      key={card.title}
+                      className="glass metric-card"
+                      style={{ borderRadius: "20px" }}
+                    >
+                      <div style={{ color: "var(--muted)", fontSize: "13px" }}>
+                        {card.title}
+                      </div>
+                      <div
+                        style={{
+                          fontSize: "15px",
+                          fontWeight: 600,
+                          marginTop: "8px",
+                          lineHeight: 1.6,
+                        }}
+                      >
+                        {card.text}
+                      </div>
+                    </div>
+                  ))}
                 </div>
 
                 <button

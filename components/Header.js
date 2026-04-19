@@ -43,10 +43,10 @@ export default function Header() {
 
           <div>
             <div style={{ fontSize: "13px", color: "var(--muted)" }}>
-              Premium Demo
+              Financial learning journey
             </div>
             <div style={{ fontSize: "20px", fontWeight: 700 }}>
-              <span className="gradient-text">Vouch</span> Intent Demo
+              Find your next step with clarity
             </div>
           </div>
         </div>
